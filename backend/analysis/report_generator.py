@@ -471,64 +471,7 @@ class ReportGenerator:
         elements.append(model_table)
         elements.append(Spacer(1, 0.4 * cm))
 
-        # ── DIFFERENTIAL DIAGNOSIS / DETAILED MORPHOLOGY ───────
-        if analysis.top3 and len(analysis.top3) >= 2:
-            top1 = analysis.top3[0]
-            top2 = analysis.top3[1]
-            conf1 = float(top1.get('confidence', 0) or 0)
-            conf2 = float(top2.get('confidence', 0) or 0)
-            confidence_gap = conf1 - conf2
-            use_differential = conf1 <= 90.0 and confidence_gap <= 25.0
-            section_title = (
-                "Differential Diagnosis (AI-assisted)" if not is_ru else "Дифференциальный диагноз (AI)"
-            )
-            section_text = _get_differential_diagnosis(
-                top1,
-                top2,
-                analysis.area_percent,
-                language='ru' if is_ru else 'en',
-            ) if use_differential else _build_detailed_morphology_text(analysis, top1, is_ru)
-            if section_text:
-                if not use_differential:
-                    section_title = (
-                        "Detailed Morphological Analysis" if not is_ru else "Детализированный морфологический анализ"
-                    )
-                elements.append(Paragraph(section_title, heading_s))
-                diff_box_style = ParagraphStyle(
-                    'diff_box',
-                    fontName=BODY_FONT, fontSize=10,
-                    textColor=colors.HexColor('#1E3A5F'),
-                    spaceAfter=4, leading=14,
-                    leftIndent=10, rightIndent=10,
-                    borderPad=8,
-                )
-                elements.append(Paragraph(_safe(_clean_llm_text(section_text)), diff_box_style))
-                elements.append(Spacer(1, 0.4 * cm))
-
-        # ── RAG DESCRIPTION (OPTIONAL) ─────────────────────────
-        if INCLUDE_RAG_CONTEXT_SECTION:
-            elements.append(Paragraph("AI Medical Context (RAG)", heading_s))
-            rag_text = _build_structured_medical_context(analysis, is_ru=is_ru)
-            for para in rag_text.split('\n'):
-                para = para.strip()
-                if para:
-                    elements.append(Paragraph(_safe(para), rag_s))
-            elements.append(Spacer(1, 0.3 * cm))
-
-        # ── DISCLAIMER ──────────────────────────────────────────
-        elements.append(HRFlowable(width="100%", thickness=1, color=colors.HexColor('#EF4444')))
-        elements.append(Spacer(1, 0.2 * cm))
-        disclaimer_text = (
-            "Только для исследовательских и демонстрационных целей. Не для клинического применения. "
-            "Этот отчет не является медицинским диагнозом. Все выводы должны быть подтверждены патоморфологом."
-            if is_ru else
-            "DISCLAIMER: For research and demonstration purposes only. Not for clinical use. "
-            "This report does not constitute a medical diagnosis. All findings must be verified by a qualified pathologist."
-        )
-        elements.append(Paragraph(disclaimer_text, disclaimer_s))
-        elements.append(Paragraph("Источники, использованные в отчете" if is_ru else "References used in this report", heading_s))
-        for idx, ref in enumerate(_get_report_references(analysis), start=1):
-            elements.append(Paragraph(f"[{idx}] {_safe(ref)}", small_s))
+        # Textual AI sections intentionally removed from PDF by product request.
 
         doc.build(elements)
         return f'/media/reports/{name}'

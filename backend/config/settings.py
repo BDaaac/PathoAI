@@ -97,14 +97,14 @@ ANTHROPIC_API_KEY = os.environ.get('ANTHROPIC_API_KEY', '')
 # Ollama API (local or remote)
 OLLAMA_ENABLED = os.environ.get('OLLAMA_ENABLED', '1') == '1'
 OLLAMA_BASE_URL = os.environ.get('OLLAMA_BASE_URL', 'http://127.0.0.1:11434')
-OLLAMA_MODEL = os.environ.get('OLLAMA_MODEL', os.environ.get('RAG_MODEL_NAME', 'qwen2.5:0.5b'))
+OLLAMA_MODEL = os.environ.get('OLLAMA_MODEL', os.environ.get('RAG_MODEL_NAME', 'qwen2.5:3b'))
 OLLAMA_API_KEY = os.environ.get('OLLAMA_API_KEY', '')
 OLLAMA_MAX_TOKENS = int(os.environ.get('OLLAMA_MAX_TOKENS', '480'))
 OLLAMA_TEMPERATURE = float(os.environ.get('OLLAMA_TEMPERATURE', '0.2'))
 OLLAMA_TOP_P = float(os.environ.get('OLLAMA_TOP_P', '0.9'))
 
 # Local lightweight model for RAG chat
-LOCAL_LLM_ENABLED = os.environ.get('LOCAL_LLM_ENABLED', '1') == '1'
+LOCAL_LLM_ENABLED = os.environ.get('LOCAL_LLM_ENABLED', '0') == '1'
 LOCAL_LLM_MODEL_ID = os.environ.get('LOCAL_LLM_MODEL_ID', 'Qwen/Qwen2.5-0.5B-Instruct')
 LOCAL_LLM_MAX_NEW_TOKENS = int(os.environ.get('LOCAL_LLM_MAX_NEW_TOKENS', '480'))
 LOCAL_LLM_TEMPERATURE = float(os.environ.get('LOCAL_LLM_TEMPERATURE', '0.2'))

@@ -52,6 +52,7 @@ except ImportError:
 KB_DIR = Path(settings.BASE_DIR) / 'rag' / 'knowledge_base'
 
 DEFAULT_LOCAL_MODEL_ID = 'Qwen/Qwen2.5-0.5B-Instruct'
+INDEX_SCHEMA_VERSION = 'v2-lang-split'
 
 SYSTEM_PROMPT = """You are a medical AI assistant for pathologists and oncologists.
 
@@ -69,17 +70,17 @@ DISCLAIMER: For research and demonstration purposes only. Not for clinical use."
 
 CLASS_DESCRIPTION_PROMPT = """You are a medical AI assistant generating structured clinical summaries for pathologists.
 
-For the given tissue class, provide a structured response in this EXACT format (respond in Russian):
+For the given tissue class, provide a structured response in this EXACT format (use the user-selected language only):
 
-**Обнаружены:** [brief description of tissue type, e.g. "признаки колоректальной аденокарциномы"]
-**Морфология:** [key morphological features in 1-2 sentences]
-**Клиническое значение:** [clinical importance in 1 sentence]
-**Рекомендации:** [per protocol recommendation — cite NCCN/WHO/AJCC if in context]
+**Detected / Обнаружены:** [brief tissue description]
+**Morphology / Морфология:** [key morphological features in 1-2 sentences]
+**Clinical significance / Клиническое значение:** [clinical importance in 1 sentence]
+**Recommendations / Рекомендации:** [protocol recommendation — cite NCCN/WHO/AJCC if in context]
 
-[Источник: cite relevant source from context]
+[Source / Источник: cite relevant source from context]
 
 ---
-*Только для исследовательских целей. Не для клинического применения.*
+*For research purposes only. Not for clinical use.*
 
 Base your answer ONLY on the provided knowledge base context. Be concise and precise."""
 
@@ -93,9 +94,9 @@ def _normalize_language(language: str | None) -> str:
 
 def _language_instruction(language: str) -> str:
     return (
-        "Respond in English only."
+        "Respond in English only. Never include Russian words, phrases, or transliterations."
         if language == 'en'
-        else "Отвечай только на русском языке."
+        else "Отвечай только на русском языке. Не используй английские слова или фразы."
     )
 
 
@@ -111,6 +112,7 @@ def _looks_like_history_critical_query(question: str) -> bool:
 def _compute_kb_hash() -> str:
     """Hash of all knowledge base files to detect changes."""
     h = hashlib.md5()
+    h.update(INDEX_SCHEMA_VERSION.encode())
     for path in sorted(KB_DIR.glob('*')):
         if path.suffix in ('.json', '.txt', '.pdf') and path.is_file():
             h.update(path.name.encode())
@@ -158,14 +160,26 @@ def _load_knowledge_base() -> list[dict]:
                     f"Клиническое значение: {item.get('clinical_significance_ru', item['clinical_significance'])} "
                     f"Рекомендации: {item.get('recommendations_ru', item['recommendations'])}"
                 )
-                combined = f"{text_en}\n\n{text_ru}"
                 refs = '; '.join(item.get('references', []))
                 docs.append({
-                    'id': f"class_{cid}",
-                    'text': combined,
+                    'id': f"class_{cid}_en",
+                    'text': text_en,
                     'meta': {
                         'source': json_path.name,
                         'type': 'class_description',
+                        'language': 'en',
+                        'class_id': cid,
+                        'class_name': item['name'],
+                        'references': refs,
+                    }
+                })
+                docs.append({
+                    'id': f"class_{cid}_ru",
+                    'text': text_ru,
+                    'meta': {
+                        'source': json_path.name,
+                        'type': 'class_description',
+                        'language': 'ru',
                         'class_id': cid,
                         'class_name': item['name'],
                         'references': refs,
@@ -192,6 +206,7 @@ def _load_knowledge_base() -> list[dict]:
                         'meta': {
                             'source': txt_path.name,
                             'type': 'article',
+                            'language': 'multi',
                             'chunk': i,
                         }
                     })
@@ -200,7 +215,7 @@ def _load_knowledge_base() -> list[dict]:
                 docs.append({
                     'id': f"txt_{txt_path.stem}",
                     'text': content,
-                    'meta': {'source': txt_path.name, 'type': 'article'}
+                    'meta': {'source': txt_path.name, 'type': 'article', 'language': 'multi'}
                 })
                 print(f"[RAG] Loaded {txt_path.name}")
         except Exception as e:
@@ -220,6 +235,7 @@ def _load_knowledge_base() -> list[dict]:
                     'meta': {
                         'source': pdf_path.name,
                         'type': 'pdf_article',
+                        'language': 'multi',
                         'chunk': i,
                     }
                 })
@@ -230,7 +246,7 @@ def _load_knowledge_base() -> list[dict]:
     return docs
 
 
-def _format_fallback(question: str, chunks: list[str], sources: list[dict]) -> str:
+def _format_fallback(question: str, chunks: list[str], sources: list[dict], language: str = 'ru') -> str:
     """
     Build a structured answer from retrieved chunks without an LLM.
     Different questions get different answers because retrieval returns different chunks.
@@ -283,23 +299,33 @@ def _format_fallback(question: str, chunks: list[str], sources: list[dict]) -> s
                     picked.append(s)
 
         if picked:
-            header = f"**{class_name}**" if class_name else f"**{src_label}**"
-            body = '\n'.join(f"• {s}." for s in picked)
+            header = class_name if class_name else src_label
+            body = '\n'.join(f"- {s}." for s in picked)
             sections.append(f"{header}\n{body}\n[Source: {src_label}]")
 
     if not sections:
+        if language == 'en':
+            return (
+                "No specific information found in the knowledge base for this query.\n"
+                "Try rephrasing or asking about a specific class name.\n\n"
+                "For research and demonstration purposes only."
+            )
         return (
-            "No specific information found in the knowledge base for this query.\n"
-            "Try rephrasing or asking about a specific class name.\n\n"
-            "For research and demonstration purposes only."
+            "В базе знаний не найдено специфической информации по этому запросу.\n"
+            "Попробуйте переформулировать вопрос или указать конкретный класс.\n\n"
+            "Только для исследовательских и демонстрационных целей."
         )
 
     answer = '\n\n'.join(sections)
-    answer += "\n\n---\n*For research and demonstration purposes only. Not for clinical use.*"
+    answer += (
+        "\n\nFor research and demonstration purposes only. Not for clinical use."
+        if language == 'en'
+        else "\n\nТолько для исследовательских и демонстрационных целей. Не для клинического применения."
+    )
     return answer
 
 
-def _format_class_description_fallback(question: str, chunks: list[str], sources: list[dict]) -> str:
+def _format_class_description_fallback(question: str, chunks: list[str], sources: list[dict], language: str = 'ru') -> str:
     """
     Structured clinical description fallback (no LLM).
     Extracts morphology, clinical significance, and recommendations from context.
@@ -344,15 +370,25 @@ def _format_class_description_fallback(question: str, chunks: list[str], sources
             cls_name = s['class_name']
             break
 
-    detected_line = f"признаки ткани класса {cls_name}" if cls_name else "результаты анализа гистологического среза"
+    if language == 'en':
+        detected_line = f"features of tissue class {cls_name}" if cls_name else "histology slide analysis results"
+        return (
+            f"Detected: {detected_line}\n"
+            f"Morphology: {morphology}\n"
+            f"Clinical significance: {clinical}\n"
+            f"Recommendations: {recommendations}\n\n"
+            f"Source: {source_str}\n\n"
+            f"For research and demonstration purposes only. Not for clinical use."
+        )
 
+    detected_line = f"признаки ткани класса {cls_name}" if cls_name else "результаты анализа гистологического среза"
     return (
-        f"**Обнаружены:** {detected_line}\n"
-        f"**Морфология:** {morphology}\n"
-        f"**Клиническое значение:** {clinical}\n"
-        f"**Рекомендации:** {recommendations}\n\n"
-        f"[Источник: {source_str}]\n\n"
-        f"---\n*Только для исследовательских целей. Не для клинического применения.*"
+        f"Обнаружены: {detected_line}\n"
+        f"Морфология: {morphology}\n"
+        f"Клиническое значение: {clinical}\n"
+        f"Рекомендации: {recommendations}\n\n"
+        f"Источник: {source_str}\n\n"
+        f"Только для исследовательских и демонстрационных целей. Не для клинического применения."
     )
 
 
@@ -527,15 +563,28 @@ class RAGEngine:
             print(f"[RAG] Ollama healthcheck error: {e}")
             return False
 
-    def _retrieve(self, query: str, k: int = 5) -> tuple[list[str], list[dict]]:
+    def _retrieve(self, query: str, k: int = 5, language: str = 'ru') -> tuple[list[str], list[dict]]:
+        language = _normalize_language(language)
         if self.collection is not None:
             try:
+                n_results = min(max(k * 3, k), self.collection.count())
                 if self.embedder:
                     emb = self.embedder.encode([query]).tolist()
-                    res = self.collection.query(query_embeddings=emb, n_results=min(k, self.collection.count()))
+                    res = self.collection.query(query_embeddings=emb, n_results=n_results)
                 else:
-                    res = self.collection.query(query_texts=[query], n_results=min(k, self.collection.count()))
-                return res['documents'][0], res['metadatas'][0]
+                    res = self.collection.query(query_texts=[query], n_results=n_results)
+
+                docs = res['documents'][0]
+                metas = res['metadatas'][0]
+                filtered_docs, filtered_metas = [], []
+                for d, m in zip(docs, metas):
+                    meta_lang = (m or {}).get('language', 'multi')
+                    if meta_lang in (language, 'multi', None, ''):
+                        filtered_docs.append(d)
+                        filtered_metas.append(m)
+                if filtered_docs:
+                    return filtered_docs[:k], filtered_metas[:k]
+                return docs[:k], metas[:k]
             except Exception as e:
                 print(f"[RAG] Retrieval error: {e}")
 
@@ -544,11 +593,36 @@ class RAGEngine:
         query_lower = query.lower()
         scored = []
         for d in docs:
+            d_lang = (d.get('meta') or {}).get('language', 'multi')
+            if d_lang not in (language, 'multi', None, ''):
+                continue
             score = sum(1 for w in query_lower.split() if len(w) > 3 and w in d['text'].lower())
             scored.append((score, d))
         scored.sort(reverse=True, key=lambda x: x[0])
         top = scored[:k]
         return [d['text'] for _, d in top], [d['meta'] for _, d in top]
+
+    @staticmethod
+    def _prioritize_by_class(docs: list[str], metas: list[dict], class_id: int | None, k: int) -> tuple[list[str], list[dict]]:
+        if class_id is None:
+            return docs[:k], metas[:k]
+
+        prioritized = []
+        others = []
+        for d, m in zip(docs, metas):
+            if (m or {}).get('class_id') == class_id:
+                prioritized.append((d, m))
+            else:
+                others.append((d, m))
+
+        if prioritized:
+            # Strict focus for analysis-linked queries: only class-matched evidence.
+            combined = prioritized[:k]
+        else:
+            combined = others
+        docs_out = [d for d, _ in combined[:k]]
+        metas_out = [m for _, m in combined[:k]]
+        return docs_out, metas_out
 
     def _generate(self, question: str, context_chunks: list[str], sources: list[dict],
                   system_prompt: str = None, language: str = 'ru') -> str:
@@ -561,8 +635,8 @@ class RAGEngine:
 
         if self.llm_provider != 'ollama' and self.llm is None:
             if system_prompt == CLASS_DESCRIPTION_PROMPT:
-                return _format_class_description_fallback(question, context_chunks, sources)
-            return _format_fallback(question, context_chunks, sources)
+                return _format_class_description_fallback(question, context_chunks, sources, language=language)
+            return _format_fallback(question, context_chunks, sources, language=language)
 
         if self.llm_provider == 'ollama':
             try:
@@ -604,8 +678,8 @@ class RAGEngine:
             except Exception as e:
                 print(f"[RAG] Ollama generation error: {e}")
                 if system_prompt == CLASS_DESCRIPTION_PROMPT:
-                    return _format_class_description_fallback(question, context_chunks, sources)
-                return _format_fallback(question, context_chunks, sources)
+                    return _format_class_description_fallback(question, context_chunks, sources, language=language)
+                return _format_fallback(question, context_chunks, sources, language=language)
 
         if self.llm_provider == 'local_transformers':
             try:
@@ -631,9 +705,9 @@ class RAGEngine:
                 output_ids = self.llm.generate(
                     prompt_ids,
                     max_new_tokens=getattr(settings, 'LOCAL_LLM_MAX_NEW_TOKENS', 480),
-                    temperature=getattr(settings, 'LOCAL_LLM_TEMPERATURE', 0.2),
-                    top_p=getattr(settings, 'LOCAL_LLM_TOP_P', 0.9),
-                    do_sample=True,
+                    temperature=getattr(settings, 'LOCAL_LLM_TEMPERATURE', 0.0),
+                    top_p=getattr(settings, 'LOCAL_LLM_TOP_P', 1.0),
+                    do_sample=False,
                     pad_token_id=self.tokenizer.eos_token_id,
                 )
                 new_tokens = output_ids[0][prompt_ids.shape[-1]:]
@@ -643,8 +717,8 @@ class RAGEngine:
             except Exception as e:
                 print(f"[RAG] Local LLM generation error: {e}")
                 if system_prompt == CLASS_DESCRIPTION_PROMPT:
-                    return _format_class_description_fallback(question, context_chunks, sources)
-                return _format_fallback(question, context_chunks, sources)
+                    return _format_class_description_fallback(question, context_chunks, sources, language=language)
+                return _format_fallback(question, context_chunks, sources, language=language)
 
         response = self.llm.messages.create(
             model='claude-sonnet-4-5-20251001',
@@ -714,7 +788,14 @@ class RAGEngine:
                 f"confidence {classification_result.get('confidence')}%"
             )
 
-        docs, metas = self._retrieve(enriched, k=k)
+        docs, metas = self._retrieve(enriched, k=k, language=language)
+        class_id = None
+        if classification_result:
+            try:
+                class_id = int(classification_result.get('class_id'))
+            except Exception:
+                class_id = None
+        docs, metas = self._prioritize_by_class(docs, metas, class_id, k)
         sources = [
             {
                 'index': i + 1,
@@ -734,13 +815,22 @@ class RAGEngine:
         cls_name_ru = (classification_result or {}).get('class_name_ru', '')
         confidence = (classification_result or {}).get('confidence', '')
 
-        question = (
-            f"Опиши класс ткани '{cls_name_ru or cls_name}' (ID {class_id}):\n"
-            f"- что это за ткань\n"
-            f"- ключевые морфологические признаки\n"
-            f"- клиническое значение\n"
-            f"- рекомендации для патолога согласно протоколам"
-        )
+        if language == 'en':
+            question = (
+                f"Describe tissue class '{cls_name}' (ID {class_id}):\n"
+                f"- what tissue type it is\n"
+                f"- key morphological features\n"
+                f"- clinical significance\n"
+                f"- recommendations for pathology reporting according to protocols"
+            )
+        else:
+            question = (
+                f"Опиши класс ткани '{cls_name_ru or cls_name}' (ID {class_id}):\n"
+                f"- что это за ткань\n"
+                f"- ключевые морфологические признаки\n"
+                f"- клиническое значение\n"
+                f"- рекомендации для патолога согласно протоколам"
+            )
 
         enriched = question
         if classification_result:
@@ -749,7 +839,8 @@ class RAGEngine:
                 f"английское название класса: {cls_name}"
             )
 
-        docs, metas = self._retrieve(enriched, k=5)
+        docs, metas = self._retrieve(enriched, k=5, language=language)
+        docs, metas = self._prioritize_by_class(docs, metas, class_id, 5)
         sources = [
             {
                 'index': i + 1,

@@ -63,6 +63,7 @@ RULES:
 4. Use proper medical terminology
 5. Do not make diagnoses — provide reference information only
 6. Always add: "This information is for research purposes only"
+7. If user language is Russian, translate medical terms to Russian and explain briefly in simpler wording unless user explicitly asks for strict terminology.
 
 Respond in the same language as the question (Russian or English).
 
@@ -107,6 +108,37 @@ def _looks_like_history_critical_query(question: str) -> bool:
         'критич', 'сроч', 'пациент', 'истори', 'неотлож',
     ]
     return any(t in q for t in triggers)
+
+
+def _looks_like_greeting(question: str) -> bool:
+    q = (question or '').strip().lower()
+    q = re.sub(r'[^\wа-яё\s!?]', ' ', q, flags=re.IGNORECASE)
+    q = re.sub(r'\s+', ' ', q).strip()
+    if not q:
+        return False
+    greetings = {
+        'hi', 'hello', 'hey', 'yo', 'sup', 'how are you',
+        'привет', 'здравствуйте', 'здравствуй', 'хай', 'салам', 'как дела',
+    }
+    return q in greetings
+
+
+def _no_data_message(language: str) -> str:
+    if language == 'en':
+        return (
+            'No reliable information was found in the knowledge base for this question. '
+            'Try rephrasing the query or specifying a concrete pathology class.'
+        )
+    return (
+        'По этому вопросу в базе знаний не найдено надежных данных. '
+        'Попробуйте переформулировать запрос или указать конкретный патологический класс.'
+    )
+
+
+def _greeting_message(language: str) -> str:
+    if language == 'en':
+        return 'Hello. I am ready to help with pathology questions. Tell me what case or class you want to review.'
+    return 'Здравствуйте. Готов помочь с вопросами по патоморфологии. Уточните, какой случай или класс ткани разобрать.'
 
 
 def _compute_kb_hash() -> str:
@@ -563,7 +595,7 @@ class RAGEngine:
             print(f"[RAG] Ollama healthcheck error: {e}")
             return False
 
-    def _retrieve(self, query: str, k: int = 5, language: str = 'ru') -> tuple[list[str], list[dict]]:
+    def _retrieve(self, query: str, k: int = 5, language: str = 'ru') -> tuple[list[str], list[dict], list[float] | None]:
         language = _normalize_language(language)
         if self.collection is not None:
             try:
@@ -576,15 +608,17 @@ class RAGEngine:
 
                 docs = res['documents'][0]
                 metas = res['metadatas'][0]
-                filtered_docs, filtered_metas = [], []
-                for d, m in zip(docs, metas):
+                dists = (res.get('distances') or [[None]])[0]
+                filtered_docs, filtered_metas, filtered_dists = [], [], []
+                for idx, (d, m) in enumerate(zip(docs, metas)):
                     meta_lang = (m or {}).get('language', 'multi')
                     if meta_lang in (language, 'multi', None, ''):
                         filtered_docs.append(d)
                         filtered_metas.append(m)
+                        filtered_dists.append(dists[idx] if idx < len(dists) else None)
                 if filtered_docs:
-                    return filtered_docs[:k], filtered_metas[:k]
-                return docs[:k], metas[:k]
+                    return filtered_docs[:k], filtered_metas[:k], filtered_dists[:k]
+                return docs[:k], metas[:k], dists[:k]
             except Exception as e:
                 print(f"[RAG] Retrieval error: {e}")
 
@@ -600,7 +634,7 @@ class RAGEngine:
             scored.append((score, d))
         scored.sort(reverse=True, key=lambda x: x[0])
         top = scored[:k]
-        return [d['text'] for _, d in top], [d['meta'] for _, d in top]
+        return [d['text'] for _, d in top], [d['meta'] for _, d in top], None
 
     @staticmethod
     def _prioritize_by_class(docs: list[str], metas: list[dict], class_id: int | None, k: int) -> tuple[list[str], list[dict]]:
@@ -775,6 +809,10 @@ class RAGEngine:
 
     def query(self, question: str, classification_result: dict = None, k: int = 5, language: str = 'ru') -> dict:
         language = _normalize_language(language)
+
+        if _looks_like_greeting(question):
+            return {'answer': _greeting_message(language), 'sources': [], 'documents_used': 0}
+
         if _looks_like_history_critical_query(question):
             hist_resp = self._history_critical_summary(language=language)
             if hist_resp:
@@ -788,14 +826,26 @@ class RAGEngine:
                 f"confidence {classification_result.get('confidence')}%"
             )
 
-        docs, metas = self._retrieve(enriched, k=k, language=language)
+        docs, metas, dists = self._retrieve(enriched, k=k, language=language)
         class_id = None
         if classification_result:
             try:
                 class_id = int(classification_result.get('class_id'))
             except Exception:
                 class_id = None
+        if dists:
+            threshold = float(getattr(settings, 'RAG_DISTANCE_THRESHOLD', 0.6))
+            filtered = [(d, m, dist) for d, m, dist in zip(docs, metas, dists) if dist is None or dist <= threshold]
+            if filtered:
+                docs = [x[0] for x in filtered]
+                metas = [x[1] for x in filtered]
+            else:
+                return {'answer': _no_data_message(language), 'sources': [], 'documents_used': 0}
+
         docs, metas = self._prioritize_by_class(docs, metas, class_id, k)
+        if not docs:
+            return {'answer': _no_data_message(language), 'sources': [], 'documents_used': 0}
+
         sources = [
             {
                 'index': i + 1,
@@ -839,7 +889,7 @@ class RAGEngine:
                 f"английское название класса: {cls_name}"
             )
 
-        docs, metas = self._retrieve(enriched, k=5, language=language)
+        docs, metas, _ = self._retrieve(enriched, k=5, language=language)
         docs, metas = self._prioritize_by_class(docs, metas, class_id, 5)
         sources = [
             {

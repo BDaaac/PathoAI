@@ -102,6 +102,7 @@ OLLAMA_API_KEY = os.environ.get('OLLAMA_API_KEY', '')
 OLLAMA_MAX_TOKENS = int(os.environ.get('OLLAMA_MAX_TOKENS', '480'))
 OLLAMA_TEMPERATURE = float(os.environ.get('OLLAMA_TEMPERATURE', '0.2'))
 OLLAMA_TOP_P = float(os.environ.get('OLLAMA_TOP_P', '0.9'))
+RAG_DISTANCE_THRESHOLD = float(os.environ.get('RAG_DISTANCE_THRESHOLD', '0.6'))
 
 # Local lightweight model for RAG chat
 LOCAL_LLM_ENABLED = os.environ.get('LOCAL_LLM_ENABLED', '0') == '1'

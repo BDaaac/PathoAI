@@ -19,6 +19,7 @@ export default function FullAnalysis() {
   const [question, setQuestion] = useState('');
   const [ragLoading, setRagLoading] = useState(false);
   const [ragResult, setRagResult] = useState(null);
+  const [askMode, setAskMode] = useState('rag');
   const resultsRef = useRef(null);
 
   const handleAnalyze = async () => {
@@ -51,6 +52,7 @@ export default function FullAnalysis() {
         question,
         classification_result: result?.classification,
         language: lang,
+        mode: askMode,
       });
       setRagResult(res.data);
     } catch (e) {
@@ -161,12 +163,30 @@ export default function FullAnalysis() {
 
             <div className="mt-4 border-t border-slate-100 pt-4">
               <p className="text-sm text-slate-600 mb-2">{isEn ? 'Ask an additional question:' : 'Задать дополнительный вопрос:'}</p>
+              <div className="mb-2 inline-flex rounded-lg border border-slate-200 bg-slate-50 p-1 gap-1">
+                <button
+                  type="button"
+                  onClick={() => setAskMode('rag')}
+                  className={`px-2.5 py-1 text-xs rounded-md ${askMode === 'rag' ? 'bg-white border border-blue-100 text-blue-700' : 'text-slate-500 hover:text-slate-700'}`}
+                >
+                  {isEn ? 'RAG Search' : 'RAG-поиск'}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setAskMode('assistant')}
+                  className={`px-2.5 py-1 text-xs rounded-md ${askMode === 'assistant' ? 'bg-white border border-blue-100 text-blue-700' : 'text-slate-500 hover:text-slate-700'}`}
+                >
+                  {isEn ? 'Jarvis-lite' : 'Jarvis-lite'}
+                </button>
+              </div>
               <div className="flex gap-2">
                 <input
                   value={question}
                   onChange={(e) => setQuestion(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && handleRagQuestion()}
-                  placeholder={isEn ? 'What are the key characteristics of this pathology?' : 'Чем характеризуется данная патология?'}
+                  placeholder={askMode === 'assistant'
+                    ? (isEn ? 'Ask for practical next steps, checklist, or workflow help' : 'Спроси про практические шаги, чеклист или workflow')
+                    : (isEn ? 'What are the key characteristics of this pathology?' : 'Чем характеризуется данная патология?')}
                   className="flex-1 border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-500"
                 />
                 <button

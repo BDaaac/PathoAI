@@ -13,7 +13,8 @@ class RAGQueryView(APIView):
 
         classification_result = request.data.get('classification_result')
         language = request.data.get('language', 'ru')
+        mode = request.data.get('mode', 'rag')
         engine = RAGEngine.get_instance()
-        result = engine.query(question, classification_result, language=language)
+        result = engine.query(question, classification_result, language=language, mode=mode)
         result['provider'] = getattr(engine, 'llm_provider', 'unknown')
         return Response(result)

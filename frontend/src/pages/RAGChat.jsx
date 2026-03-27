@@ -22,6 +22,8 @@ const SUGGESTED = {
 
 export default function RAGChat() {
   const { lang, t } = useLanguage();
+  const isEn = lang === 'en';
+  const [mode, setMode] = useState('rag');
   const [messages, setMessages] = useState([
     {
       role: 'assistant',
@@ -38,8 +40,13 @@ export default function RAGChat() {
   }, [messages]);
 
   useEffect(() => {
-    setMessages([{ role: 'assistant', content: t('chatGreeting'), sources: [] }]);
-  }, [lang, t]);
+    const greeting = mode === 'assistant'
+      ? (isEn
+        ? 'Hello. Jarvis-lite mode is active. I can help with workflow, checklists, and practical next steps.'
+        : 'Здравствуйте. Включен режим Jarvis-lite. Помогу с workflow, чеклистами и практическими шагами.')
+      : t('chatGreeting');
+    setMessages([{ role: 'assistant', content: greeting, sources: [] }]);
+  }, [lang, t, mode, isEn]);
 
   const sendMessage = async (text) => {
     const q = (text || input).trim();
@@ -49,7 +56,7 @@ export default function RAGChat() {
     setLoading(true);
 
     try {
-      const res = await ragQuery({ question: q, language: lang });
+      const res = await ragQuery({ question: q, language: lang, mode });
       setMessages((prev) => [
         ...prev,
         { role: 'assistant', content: res.data.answer, sources: res.data.sources }
@@ -71,7 +78,27 @@ export default function RAGChat() {
           <MessageSquare size={24} className="text-blue-600" />
           {t('chatTitle')}
         </h1>
-        <p className="text-slate-500 text-sm mt-1">{t('chatSubtitle')}</p>
+        <p className="text-slate-500 text-sm mt-1">
+          {mode === 'assistant'
+            ? (isEn ? 'Jarvis-lite assistant: practical help without strict KB retrieval' : 'Jarvis-lite ассистент: практичная помощь без строгого поиска по KB')
+            : t('chatSubtitle')}
+        </p>
+        <div className="mt-3 inline-flex rounded-xl border border-slate-200 bg-slate-50 p-1 gap-1">
+          <button
+            type="button"
+            onClick={() => setMode('rag')}
+            className={`px-3 py-1.5 text-xs rounded-lg ${mode === 'rag' ? 'bg-white text-blue-700 border border-blue-100' : 'text-slate-500 hover:text-slate-700'}`}
+          >
+            {isEn ? 'RAG Search' : 'RAG-поиск'}
+          </button>
+          <button
+            type="button"
+            onClick={() => setMode('assistant')}
+            className={`px-3 py-1.5 text-xs rounded-lg ${mode === 'assistant' ? 'bg-white text-blue-700 border border-blue-100' : 'text-slate-500 hover:text-slate-700'}`}
+          >
+            {isEn ? 'Jarvis-lite' : 'Jarvis-lite'}
+          </button>
+        </div>
       </div>
 
       {/* Chat window */}
@@ -123,7 +150,7 @@ export default function RAGChat() {
         </div>
 
         {/* Suggested questions */}
-        {messages.length <= 1 && (
+        {messages.length <= 1 && mode === 'rag' && (
           <div className="px-4 pb-3">
             <p className="text-xs text-slate-400 mb-2">{t('chatExamples')}</p>
             <div className="flex flex-wrap gap-2">

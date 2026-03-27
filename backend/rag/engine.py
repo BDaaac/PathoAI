@@ -69,6 +69,21 @@ Respond in the same language as the question (Russian or English).
 
 DISCLAIMER: For research and demonstration purposes only. Not for clinical use."""
 
+ASSISTANT_PROMPT = """You are BioVision Copilot, a concise and helpful AI assistant for a pathology workflow.
+
+GOALS:
+1. Help with practical next steps, workflow organization, and interpretation guidance.
+2. Be clear about limitations. Do not provide definitive diagnosis.
+3. If asked outside available data, offer a safe, useful alternative.
+4. Keep responses short, structured, and actionable.
+
+STYLE:
+- Friendly but professional.
+- 3-8 lines when possible.
+- Use user language only.
+
+DISCLAIMER: For research purposes only. Not for clinical use."""
+
 CLASS_DESCRIPTION_PROMPT = """You are a medical AI assistant generating structured clinical summaries for pathologists.
 
 For the given tissue class, provide a structured response in this EXACT format (use the user-selected language only):
@@ -139,6 +154,40 @@ def _greeting_message(language: str) -> str:
     if language == 'en':
         return 'Hello. I am ready to help with pathology questions. Tell me what case or class you want to review.'
     return 'Здравствуйте. Готов помочь с вопросами по патоморфологии. Уточните, какой случай или класс ткани разобрать.'
+
+
+def _assistant_fallback(question: str, language: str = 'ru') -> str:
+    q = (question or '').strip().lower()
+    if _looks_like_greeting(question):
+        if language == 'en':
+            return (
+                "Hello. I am BioVision Copilot (Jarvis-lite mode).\n"
+                "I can help with: case workflow, question framing for RAG, report checklist, and explanation of model outputs."
+            )
+        return (
+            "Здравствуйте. Я BioVision Copilot (режим Jarvis-lite).\n"
+            "Могу помочь с: workflow по кейсу, формулировкой вопроса для RAG, чеклистом отчета и пояснением метрик модели."
+        )
+
+    if any(x in q for x in ['погод', 'weather', 'курс валют', 'bitcoin', 'марс']):
+        if language == 'en':
+            return "I do not have live internet data in this mode. I can still help with pathology workflow and report QA."
+        return "В этом режиме у меня нет доступа к live-интернет данным. Зато могу помочь с патоморфологическим workflow и QA отчета."
+
+    if language == 'en':
+        return (
+            "Jarvis-lite quick help:\n"
+            "1) Clarify your goal (diagnostic clue, report text, or triage priority).\n"
+            "2) If needed, switch to RAG Search mode for evidence-backed references.\n"
+            "3) I can draft a concise checklist for the current case."
+        )
+
+    return (
+        "Быстрая помощь Jarvis-lite:\n"
+        "1) Уточните цель: диагностический признак, текст отчета или приоритизация кейса.\n"
+        "2) При необходимости переключитесь в режим RAG Search для ответов с базой знаний.\n"
+        "3) Я могу составить короткий чеклист по текущему случаю."
+    )
 
 
 def _compute_kb_hash() -> str:
@@ -768,6 +817,87 @@ class RAGEngine:
         )
         return response.content[0].text
 
+    def _generate_assistant(self, question: str, language: str = 'ru') -> str:
+        language = _normalize_language(language)
+        lang_instruction = _language_instruction(language)
+
+        if self.llm_provider != 'ollama' and self.llm is None:
+            return _assistant_fallback(question, language=language)
+
+        if self.llm_provider == 'ollama':
+            try:
+                messages = [
+                    {'role': 'system', 'content': f"{ASSISTANT_PROMPT}\n\n{lang_instruction}"},
+                    {'role': 'user', 'content': question},
+                ]
+                payload = {
+                    'model': self.ollama_model,
+                    'messages': messages,
+                    'stream': False,
+                    'options': {
+                        'temperature': 0.3,
+                        'top_p': 0.9,
+                        'num_predict': getattr(settings, 'OLLAMA_MAX_TOKENS', 480),
+                    },
+                }
+                res = requests.post(
+                    f"{self.ollama_base_url}/api/chat",
+                    headers=self._ollama_headers(),
+                    data=json.dumps(payload, ensure_ascii=False).encode('utf-8'),
+                    timeout=90,
+                )
+                if res.status_code != 200:
+                    raise RuntimeError(f"Ollama HTTP {res.status_code}: {res.text[:300]}")
+
+                data = res.json()
+                text = (data.get('message') or {}).get('content', '').strip()
+                if text:
+                    return text
+            except Exception as e:
+                print(f"[RAG] Assistant generation error (ollama): {e}")
+                return _assistant_fallback(question, language=language)
+
+        if self.llm_provider == 'local_transformers':
+            try:
+                messages = [
+                    {'role': 'system', 'content': f"{ASSISTANT_PROMPT}\n\n{lang_instruction}"},
+                    {'role': 'user', 'content': question},
+                ]
+                prompt_ids = self.tokenizer.apply_chat_template(
+                    messages,
+                    add_generation_prompt=True,
+                    return_tensors='pt',
+                )
+                device = next(self.llm.parameters()).device
+                prompt_ids = prompt_ids.to(device)
+                output_ids = self.llm.generate(
+                    prompt_ids,
+                    max_new_tokens=getattr(settings, 'LOCAL_LLM_MAX_NEW_TOKENS', 320),
+                    temperature=0.2,
+                    top_p=0.9,
+                    do_sample=True,
+                    pad_token_id=self.tokenizer.eos_token_id,
+                )
+                new_tokens = output_ids[0][prompt_ids.shape[-1]:]
+                text = self.tokenizer.decode(new_tokens, skip_special_tokens=True).strip()
+                if text:
+                    return text
+            except Exception as e:
+                print(f"[RAG] Assistant generation error (local): {e}")
+                return _assistant_fallback(question, language=language)
+
+        try:
+            response = self.llm.messages.create(
+                model='claude-sonnet-4-5-20251001',
+                max_tokens=800,
+                system=f"{ASSISTANT_PROMPT}\n\n{lang_instruction}",
+                messages=[{'role': 'user', 'content': question}],
+            )
+            return response.content[0].text
+        except Exception as e:
+            print(f"[RAG] Assistant generation error (anthropic): {e}")
+            return _assistant_fallback(question, language=language)
+
     def _history_critical_summary(self, language: str = 'ru') -> dict | None:
         try:
             from history.models import Analysis
@@ -807,15 +937,21 @@ class RAGEngine:
             print(f"[RAG] History critical summary error: {e}")
             return None
 
-    def query(self, question: str, classification_result: dict = None, k: int = 5, language: str = 'ru') -> dict:
+    def query(self, question: str, classification_result: dict = None, k: int = 5, language: str = 'ru', mode: str = 'rag') -> dict:
         language = _normalize_language(language)
+        mode = (mode or 'rag').strip().lower()
+
+        if mode in {'assistant', 'jarvis', 'copilot'}:
+            answer = self._generate_assistant(question, language=language)
+            return {'answer': answer, 'sources': [], 'documents_used': 0, 'mode': 'assistant'}
 
         if _looks_like_greeting(question):
-            return {'answer': _greeting_message(language), 'sources': [], 'documents_used': 0}
+            return {'answer': _greeting_message(language), 'sources': [], 'documents_used': 0, 'mode': 'rag'}
 
         if _looks_like_history_critical_query(question):
             hist_resp = self._history_critical_summary(language=language)
             if hist_resp:
+                hist_resp['mode'] = 'rag'
                 return hist_resp
 
         enriched = question
@@ -857,7 +993,7 @@ class RAGEngine:
         ]
 
         answer = self._generate(question, docs, sources, system_prompt=SYSTEM_PROMPT, language=language)
-        return {'answer': answer, 'sources': sources, 'documents_used': len(sources)}
+        return {'answer': answer, 'sources': sources, 'documents_used': len(sources), 'mode': 'rag'}
 
     def describe_class(self, class_id: int, classification_result: dict = None, language: str = 'ru') -> dict:
         language = _normalize_language(language)

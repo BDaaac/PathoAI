@@ -1,0 +1,150 @@
+{
+  "dataset": "NCT-CRC-HE-100K",
+  "description": "Colorectal cancer histopathology image classification",
+  "classes": [
+    {
+      "id": 0,
+      "name": "Adipose Tissue",
+      "name_ru": "Жировая ткань",
+      "description": "Adipose tissue (fat tissue) consists predominantly of adipocytes — large cells with optically empty vacuoles and peripheral nuclei. In colorectal biopsy specimens, it is usually found in the subserosa or pericolic fat.",
+      "description_ru": "Жировая ткань состоит преимущественно из адипоцитов — крупных клеток с оптически пустыми вакуолями и периферически расположенными ядрами. В биоптатах толстой кишки обычно встречается в подсерозном или периколическом жире.",
+      "clinical_significance": "Typically a benign finding. Lipomatosis of the colon involves excessive fat deposition in the submucosal layer but is usually asymptomatic.",
+      "clinical_significance_ru": "Как правило, доброкачественная находка. Липоматоз толстой кишки предполагает избыточное отложение жира в подслизистом слое, обычно бессимптомно.",
+      "recommendations": "Evaluate surrounding tissues for pathology. No specific intervention required for isolated adipose tissue.",
+      "recommendations_ru": "Оценить окружающие ткани на наличие патологии. Изолированная находка не требует специфических вмешательств.",
+      "references": ["WHO Classification of Tumours of the Digestive System, 5th Ed.", "Rosai and Ackerman's Surgical Pathology, 11th Ed."]
+    },
+    {
+      "id": 1,
+      "name": "Background / Artifact",
+      "name_ru": "Фон / Артефакт",
+      "description": "Background or preparation artifact: empty slide areas, glass folds, air bubbles, fixation artifacts, edge effects. Does not represent diagnostic tissue.",
+      "description_ru": "Фоновая ткань или артефакт подготовки препарата: пустые участки среза, складки стекла, пузыри воздуха, артефакты фиксации. Не представляет диагностической ткани.",
+      "clinical_significance": "No diagnostic significance. Indicates specimen preparation issues if occupying large slide areas.",
+      "clinical_significance_ru": "Диагностической значимости не имеет. Указывает на проблемы с подготовкой препарата при значительной доле артефактов.",
+      "recommendations": "Request repeat sectioning if artifact covers diagnostic areas. Review fixation and processing protocols.",
+      "recommendations_ru": "Запросить повторный срез если артефакты перекрывают диагностические зоны. Проверить протоколы фиксации.",
+      "references": ["Standard histopathology laboratory protocols"]
+    },
+    {
+      "id": 2,
+      "name": "Debris",
+      "name_ru": "Дебрис",
+      "description": "Cellular debris — fragmented necrotic cells, sloughed epithelium, mucin, inflammatory exudate. Frequently observed in the intestinal lumen or necrotic zones within tumors.",
+      "description_ru": "Клеточный дебрис — фрагменты некротизированных клеток, слущенный эпителий, муцин, воспалительный экссудат. Часто наблюдается в просвете кишки или в зонах некроза опухоли.",
+      "clinical_significance": "May indicate tissue necrosis, characteristic of high-grade malignancies or ischemic changes. Tumor necrosis is an adverse prognostic factor.",
+      "clinical_significance_ru": "Может указывать на некроз ткани, характерный для высокозлокачественных опухолей или ишемических изменений. Некроз опухоли является неблагоприятным прогностическим фактором.",
+      "recommendations": "Assess for viable tumor tissue in adjacent areas. Consider tumor grading if necrosis is extensive.",
+      "recommendations_ru": "Оценить наличие жизнеспособной опухолевой ткани в смежных участках. Рассмотреть определение степени злокачественности при обширном некрозе.",
+      "references": ["AJCC Cancer Staging Manual, 8th Ed.", "WHO Classification of Tumours, 5th Ed."]
+    },
+    {
+      "id": 3,
+      "name": "Lymphocytes",
+      "name_ru": "Лимфоциты",
+      "description": "Lymphocytes are small mononuclear immune cells. Normally present in the lamina propria of colonic mucosa. Increased infiltration may be reactive or neoplastic. Tumor-infiltrating lymphocytes (TILs) are an important prognostic marker.",
+      "description_ru": "Лимфоциты — малые мононуклеарные клетки иммунной системы. В норме присутствуют в lamina propria слизистой. Повышенная инфильтрация может быть реактивной или опухолевой. Tumor-infiltrating lymphocytes (TILs) — важный прогностический маркер.",
+      "clinical_significance": "High TIL density correlates with better prognosis in colorectal cancer, particularly in MSI-High tumors. Dense lymphocytic infiltration suggests Crohn's disease, UC, or lymphoma.",
+      "clinical_significance_ru": "Высокая плотность TIL коррелирует с лучшим прогнозом при колоректальном раке, особенно при MSI-High опухолях. Выраженная лимфоцитарная инфильтрация характерна для болезни Крона, НЯК или лимфомы.",
+      "recommendations": "Assess distribution and immunophenotype if lymphoma is suspected. Consider MSI testing in CRC cases with dense TILs.",
+      "recommendations_ru": "Оценить характер распределения и иммунофенотип при подозрении на лимфому. Рассмотреть тестирование на MSI при высокой плотности TIL в КРР.",
+      "references": ["Galon J. et al. Science 2006", "NCCN Guidelines Colon Cancer 2024", "WHO Classification of Tumours, 5th Ed."]
+    },
+    {
+      "id": 4,
+      "name": "Mucus",
+      "name_ru": "Слизь",
+      "description": "Mucin (mucus) is the secretion of goblet cells. Normally present in the intestinal lumen. Extracellular mucin lakes without tumor cells may result from crypt rupture. Mucinous adenocarcinoma is defined by >50% extracellular mucin with malignant cells.",
+      "description_ru": "Слизь (муцин) — секрет бокаловидных клеток. В норме присутствует в просвете кишки. Озёра муцина без опухолевых клеток могут быть результатом разрыва крипты. Муцинозная аденокарцинома определяется при >50% внеклеточного муцина с опухолевыми клетками.",
+      "clinical_significance": "Mucinous adenocarcinoma comprises ~10-15% of colorectal cancers and is associated with MSI-High status. Signet ring cell carcinoma (>50% signet ring cells) has a poor prognosis.",
+      "clinical_significance_ru": "Муцинозная аденокарцинома составляет ~10-15% КРР и ассоциирована со статусом MSI-High. Перстневидноклеточная карцинома (>50% перстневидных клеток) имеет плохой прогноз.",
+      "recommendations": "Carefully examine mucin lakes for neoplastic cells or signet ring elements. Report mucinous component percentage.",
+      "recommendations_ru": "Тщательно исследовать муциновые озёра на наличие опухолевых клеток или перстневидноклеточных элементов. Указать процент муцинозного компонента.",
+      "references": ["WHO Classification of Tumours, 5th Ed.", "AJCC 8th Ed."]
+    },
+    {
+      "id": 5,
+      "name": "Smooth Muscle",
+      "name_ru": "Гладкая мускулатура",
+      "description": "Smooth muscle tissue — component of the muscularis mucosae and muscularis propria. Spindle-shaped cells with cigar-shaped nuclei and eosinophilic cytoplasm. Critical for determining depth of tumor invasion (T-stage).",
+      "description_ru": "Гладкая мышечная ткань — компонент мышечной пластинки слизистой и muscularis propria. Клетки веретенообразные с сигарообразными ядрами и эозинофильной цитоплазмой. Критична для определения глубины инвазии опухоли (T-стадия).",
+      "clinical_significance": "Invasion into muscularis propria = pT2. Invasion through muscularis propria into pericolorectal tissues = pT3. Each stage significantly affects treatment planning.",
+      "clinical_significance_ru": "Инвазия в muscularis propria = pT2. Инвазия через muscularis propria в периколоректальные ткани = pT3. Каждая стадия существенно влияет на план лечения.",
+      "recommendations": "Assess depth of tumor invasion relative to muscle layers. Document T-stage for TNM classification.",
+      "recommendations_ru": "Оценить глубину инвазии опухоли относительно мышечных слоёв. Документировать T-стадию для классификации TNM.",
+      "references": ["AJCC Cancer Staging Manual, 8th Ed.", "TNM Classification of Malignant Tumours, 8th Ed."]
+    },
+    {
+      "id": 6,
+      "name": "Normal Colon Mucosa",
+      "name_ru": "Нормальная слизистая толстой кишки",
+      "description": "Normal colonic mucosa: regular tubular crypts with columnar epithelium and goblet cells, smooth luminal surface, no atypia, intact architecture. Serves as internal control.",
+      "description_ru": "Нормальная слизистая оболочка толстой кишки: правильные трубчатые крипты с цилиндрическим эпителием и бокаловидными клетками, ровная поверхность, отсутствие атипии, сохранная архитектоника. Служит внутренним контролем.",
+      "clinical_significance": "Represents normal tissue. Used as baseline comparison for pathologically altered areas. Preservation of normal mucosa at resection margins is critical.",
+      "clinical_significance_ru": "Представляет нормальную ткань. Используется как базовый уровень для сравнения с патологически изменёнными участками. Сохранность нормальной слизистой в краях резекции критически важна.",
+      "recommendations": "No pathology detected in this area. Ensure adequate sampling of transitional zones between normal and abnormal mucosa.",
+      "recommendations_ru": "Патологии не выявлено. Обеспечить достаточное взятие материала из переходных зон между нормальной и изменённой слизистой.",
+      "references": ["Standard histopathology references"]
+    },
+    {
+      "id": 7,
+      "name": "Cancer-Associated Stroma",
+      "name_ru": "Строма, ассоциированная с раком",
+      "description": "Cancer-associated stroma (desmoplastic reaction) — reactive fibrous stroma forming around invasive carcinoma. Contains activated myofibroblasts (cancer-associated fibroblasts/CAFs), dense collagen, inflammatory cells, and new vessels.",
+      "description_ru": "Строма, ассоциированная с раком (десмопластическая реакция) — реактивная фиброзная строма, формирующаяся вокруг инвазивной карциномы. Содержит активированные миофибробласты (CAF), плотный коллаген, воспалительные клетки и новые сосуды.",
+      "clinical_significance": "High stromal content (stroma-rich/stroma-poor grading by Mesker) is associated with worse prognosis. Desmoplastic stroma indirectly indicates invasive tumor growth.",
+      "clinical_significance_ru": "Высокое содержание стромы (градация по Mesker: stroma-rich) ассоциировано с худшим прогнозом. Десмопластическая строма является косвенным признаком инвазивного роста опухоли.",
+      "recommendations": "Look for invasive tumor nests within desmoplastic areas. Assess tumor-stroma ratio (TSR) as prognostic marker.",
+      "recommendations_ru": "Искать инвазивные гнёзда опухолевых клеток в десмопластических участках. Оценить соотношение опухоль/строма (TSR) как прогностический маркер.",
+      "references": ["Mesker WE et al. Clin Cancer Res 2007", "ESMO Guidelines CRC 2023"]
+    },
+    {
+      "id": 8,
+      "name": "Colorectal Adenocarcinoma Epithelium",
+      "name_ru": "Эпителий колоректальной аденокарциномы",
+      "description": "Malignant glandular structures with marked nuclear atypia: enlarged hyperchromatic nuclei, prominent nucleoli, pathological mitoses, loss of polarity. The predominant morphological form of colorectal cancer (~95% of cases).",
+      "description_ru": "Злокачественные железистые структуры с выраженной ядерной атипией: увеличенные гиперхромные ядра, заметные ядрышки, патологические митозы, утрата полярности. Основная морфологическая форма рака толстой кишки (~95% случаев).",
+      "clinical_significance": "Prognosis depends on TNM stage, differentiation grade (G1-G3), lymphovascular invasion (LVI), perineural invasion (PNI), and MSI/MMR status. 5-year survival: Stage I ~90%, Stage II ~80%, Stage III ~60%, Stage IV ~14%.",
+      "clinical_significance_ru": "Прогноз зависит от стадии TNM, степени дифференцировки (G1-G3), лимфоваскулярной инвазии (LVI), периневральной инвазии (PNI) и статуса MSI/MMR. 5-летняя выживаемость: I стадия ~90%, II ~80%, III ~60%, IV ~14%.",
+      "recommendations": "Determine differentiation grade, invasion depth, resection margin status, LVI, PNI. Recommend MMR/MSI and KRAS/NRAS/BRAF/HER2 testing per guidelines.",
+      "recommendations_ru": "Определить степень дифференцировки, глубину инвазии, краевой статус, LVI, PNI. Рекомендовать тестирование MMR/MSI и KRAS/NRAS/BRAF/HER2 согласно протоколам.",
+      "references": ["NCCN Guidelines Colon Cancer 2024", "ESMO Guidelines CRC 2023", "AJCC 8th Ed.", "WHO 5th Ed."]
+    },
+    {
+      "id": 9,
+      "name": "Serosa",
+      "name_ru": "Серозная оболочка",
+      "description": "Serosa (visceral peritoneum) — the outermost layer of the colorectal wall. Composed of mesothelial cells on a fibrous base. Present on intraperitoneal colon segments; absent on retroperitoneal segments.",
+      "description_ru": "Серозная оболочка (висцеральная брюшина) — наружный слой стенки толстой кишки. Мезотелиальные клетки на фиброзной основе. Присутствует на интраперитонеальных сегментах кишки; отсутствует на ретроперитонеальных.",
+      "clinical_significance": "Tumor penetration to serosal surface = pT4a (TNM 8th Ed.). Involvement of adjacent organs/structures = pT4b. T4 significantly impacts staging and adjuvant therapy decisions.",
+      "clinical_significance_ru": "Прорастание опухоли до серозной поверхности = pT4a (TNM 8-е изд.). Вовлечение смежных органов = pT4b. T4 существенно влияет на стадирование и решение о адъювантной терапии.",
+      "recommendations": "Carefully assess proximity and involvement of serosal surface by tumor. Use elastic stain if needed for definitive evaluation.",
+      "recommendations_ru": "Тщательно оценить близость и вовлечённость серозной поверхности опухолью. При необходимости использовать окраску на эластику для окончательной оценки.",
+      "references": ["AJCC Cancer Staging Manual, 8th Ed.", "CAP Protocol for Colon Cancer 2023"]
+    },
+    {
+      "id": 10,
+      "name": "Complex Stroma",
+      "name_ru": "Комплексная строма",
+      "description": "Complex stroma — heterogeneous stromal areas including fibroblasts, smooth muscle cells, inflammatory infiltrate, fibrosis, and vascular structures. Represents intermediate stromal patterns.",
+      "description_ru": "Комплексная строма — участки с неоднородным стромальным компонентом, включающим фибробласты, гладкомышечные клетки, воспалительный инфильтрат, фиброз и сосудистые структуры.",
+      "clinical_significance": "May serve as a background for invasive tumor growth or reactive changes. Assessment of stromal composition aids in tumor microenvironment characterization.",
+      "clinical_significance_ru": "Может быть фоном для инвазивного роста опухоли или реактивных изменений. Оценка состава стромы помогает охарактеризовать микроокружение опухоли.",
+      "recommendations": "Examine carefully for tumor cells. Correlate with clinical context and other tissue components.",
+      "recommendations_ru": "Детально изучить на предмет наличия опухолевых клеток. Сопоставить с клиническим контекстом и другими тканевыми компонентами.",
+      "references": ["Standard surgical pathology texts"]
+    },
+    {
+      "id": 11,
+      "name": "Tumor Epithelium",
+      "name_ru": "Опухолевый эпителий",
+      "description": "Malignant epithelial cells forming atypical structures — glandular, cribriform, solid, or single-cell patterns. Direct evidence of malignancy in the specimen. May include various architectural patterns of CRC.",
+      "description_ru": "Злокачественные эпителиальные клетки, формирующие атипичные структуры — железистые, решетчатые, солидные или одиночноклеточные паттерны. Прямое свидетельство злокачественного процесса в исследуемом образце.",
+      "clinical_significance": "Confirms malignancy. Histological type, differentiation grade, and architectural pattern (glandular vs solid) are key prognostic and therapeutic determinants.",
+      "clinical_significance_ru": "Подтверждает злокачественный процесс. Гистологический тип, степень дифференцировки и архитектурный паттерн (железистый vs солидный) — ключевые прогностические и терапевтические детерминанты.",
+      "recommendations": "Establish histological type, grade, presence of invasion. If solid pattern predominates, consider poorly differentiated adenocarcinoma or medullary carcinoma (MSI-H).",
+      "recommendations_ru": "Установить гистологический тип, степень дифференцировки, наличие инвазии. При преобладании солидного паттерна — рассмотреть низкодифференцированную аденокарциному или медуллярную карциному (MSI-H).",
+      "references": ["WHO Classification of Tumours, 5th Ed.", "NCCN Guidelines 2024"]
+    }
+  ]
+}

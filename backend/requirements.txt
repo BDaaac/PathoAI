@@ -1,0 +1,17 @@
+django==5.0.1
+djangorestframework==3.15.2
+django-cors-headers==4.4.0
+Pillow==10.4.0
+torch==2.4.0
+torchvision==0.19.0
+timm==1.0.9
+segmentation-models-pytorch==0.3.4
+ttach==0.0.3
+opencv-python-headless==4.10.0.84
+numpy==1.26.4
+chromadb==0.5.20
+sentence-transformers==3.0.1
+anthropic==0.34.2
+reportlab==4.2.5
+huggingface-hub>=0.34.0,<1.0
+requests>=2.31.0

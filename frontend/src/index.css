@@ -1,0 +1,103 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  color-scheme: dark;
+  background: radial-gradient(circle at 0% 0%, #172554 0%, #020617 45%, #020617 100%);
+  color: #e2e8f0;
+}
+
+/* Numeric data: tabular figures */
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Global dark palette overrides for existing Tailwind utility classes */
+.bg-white {
+  background-color: #0f172a !important;
+}
+
+.bg-slate-50 {
+  background-color: #1e293b !important;
+}
+
+.bg-slate-100 {
+  background-color: #334155 !important;
+}
+
+.border-slate-200 {
+  border-color: #334155 !important;
+}
+
+.border-slate-100 {
+  border-color: #1e293b !important;
+}
+
+.text-slate-900 {
+  color: #f8fafc !important;
+}
+
+.text-slate-800 {
+  color: #e2e8f0 !important;
+}
+
+.text-slate-700 {
+  color: #cbd5e1 !important;
+}
+
+.text-slate-600,
+.text-slate-500 {
+  color: #94a3b8 !important;
+}
+
+.text-slate-400 {
+  color: #64748b !important;
+}
+
+.placeholder-slate-400::placeholder {
+  color: #64748b !important;
+}
+
+.hover\:bg-slate-50:hover {
+  background-color: #1e293b !important;
+}
+
+.hover\:bg-slate-100:hover {
+  background-color: #334155 !important;
+}
+
+.bg-red-50 {
+  background-color: #3f1d1d !important;
+}
+
+.border-red-200 {
+  border-color: #7f1d1d !important;
+}
+
+.bg-white\/10 {
+  background-color: rgba(15, 23, 42, 0.75) !important;
+}
+
+.bg-white\/20 {
+  background-color: rgba(30, 41, 59, 0.85) !important;
+}
+
+.bg-blue-50 {
+  background-color: #1e3a8a !important;
+}
+
+.text-blue-700 {
+  color: #93c5fd !important;
+}
+
+.shadow-sm {
+  box-shadow: 0 8px 24px rgba(2, 6, 23, 0.35) !important;
+}

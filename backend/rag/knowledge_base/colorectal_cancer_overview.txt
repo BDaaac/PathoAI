@@ -1,0 +1,78 @@
+COLORECTAL CANCER: OVERVIEW FOR PATHOLOGISTS
+Source: Based on WHO Classification of Tumours 5th Ed., NCCN Guidelines 2024, ESMO Guidelines 2023
+
+EPIDEMIOLOGY
+Colorectal cancer (CRC) is the third most common cancer worldwide and the second leading cause of cancer death.
+Approximately 1.9 million new cases and 935,000 deaths annually (Global Cancer Statistics 2022).
+Risk factors: age >50, family history, inflammatory bowel disease, sedentary lifestyle, diet high in red/processed meat.
+
+HISTOLOGICAL CLASSIFICATION (WHO 2019)
+- Adenocarcinoma NOS (most common, ~85%)
+- Mucinous adenocarcinoma (>50% extracellular mucin, ~10-15%)
+- Signet-ring cell carcinoma (>50% signet-ring cells, poor prognosis)
+- Medullary carcinoma (solid growth, dense TILs, usually MSI-H, better prognosis)
+- Micropapillary carcinoma (aggressive, frequent LVI)
+- Serrated adenocarcinoma
+- Adenosquamous carcinoma (rare)
+
+GRADING (WHO)
+G1 - Well differentiated: >95% gland formation
+G2 - Moderately differentiated: 50-95% gland formation
+G3 - Poorly differentiated: <50% gland formation
+
+TNM STAGING (AJCC 8th Edition)
+T1: Invasion into submucosa
+T2: Invasion into muscularis propria
+T3: Invasion through muscularis propria into pericolorectal tissues
+T4a: Penetration to visceral peritoneal surface
+T4b: Direct invasion of adjacent organs/structures
+
+N0: No regional lymph node metastasis
+N1: 1-3 regional lymph nodes
+N1c: Tumor deposits without regional LN metastasis
+N2: 4+ regional lymph nodes
+
+M0: No distant metastasis
+M1a: One organ (liver, lung, ovary, non-regional LN)
+M1b: Two or more organs
+M1c: Peritoneal metastasis
+
+5-YEAR SURVIVAL RATES
+Stage I (T1-2, N0, M0): ~90%
+Stage II (T3-4, N0, M0): ~75-80%
+Stage III (any T, N1-2, M0): ~50-65%
+Stage IV (any T, any N, M1): ~14%
+
+MOLECULAR MARKERS (clinically actionable)
+- KRAS/NRAS: mutation → no anti-EGFR therapy (cetuximab/panitumumab)
+- BRAF V600E: mutation → poor prognosis, consider encorafenib combination
+- MSI-H/dMMR: benefit from immunotherapy (pembrolizumab), Lynch syndrome screening
+- HER2 amplification: targetable in RAS/RAF wild-type tumors
+- POLE/POLD1 mutations: ultra-hypermutation, excellent immunotherapy response
+
+TUMOR-INFILTRATING LYMPHOCYTES (TILs)
+High TIL density (Immunoscore) correlates with improved OS and DFS.
+Immunoscore (0-4 scale): CD3+ and CD8+ T cells in tumor core and invasive margin.
+MSI-H tumors typically show high TILs and better response to immunotherapy.
+
+TUMOR-STROMA RATIO (TSR)
+Mesker classification:
+- Stroma-poor (<50% stroma): better prognosis
+- Stroma-rich (≥50% stroma): worse prognosis, independent prognostic factor
+TSR should be assessed at the tumor front in H&E sections.
+
+LYMPHOVASCULAR INVASION (LVI)
+Presence of tumor cells within endothelium-lined channels.
+LVI is an independent adverse prognostic factor, associated with lymph node metastasis.
+Required reporting element in CAP/RCPath protocols.
+
+PERINEURAL INVASION (PNI)
+Tumor cells within, around, or between nerve fascicles.
+Associated with local recurrence and worse survival.
+Required reporting element per major guidelines.
+
+RESECTION MARGINS
+R0: No tumor at resection margin (>1mm recommended for CRM in rectal cancer)
+R1: Microscopic margin involvement
+R2: Macroscopic residual tumor
+Circumferential resection margin (CRM) in rectal cancer: ≤1mm = positive CRM

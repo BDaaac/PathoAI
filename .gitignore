@@ -1,0 +1,38 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg-info/
+.venv/
+venv/
+env/
+
+# Django/runtime
+backend/db.sqlite3
+backend/media/
+backend/chroma_db/
+*.log
+
+# ML artifacts and large binaries
+backend/ml_models/
+model/
+*.pt
+*.pth
+*.onnx
+*.ckpt
+
+# Frontend
+frontend/node_modules/
+frontend/dist/
+
+# OS/Editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Build/cache
+.cache/
+*.tmp

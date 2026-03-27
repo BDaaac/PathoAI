@@ -1,0 +1,51 @@
+HISTOPATHOLOGY TECHNIQUES IN CRC DIAGNOSIS
+Source: Standard laboratory protocols, CAP guidelines
+
+H&E STAINING (Hematoxylin and Eosin)
+Standard stain for routine histopathological examination.
+Hematoxylin: stains nuclei blue/purple (basophilic structures)
+Eosin: stains cytoplasm and extracellular matrix pink/red (eosinophilic structures)
+Key morphological features assessed: nuclear atypia, mitotic activity, gland formation, invasion pattern
+
+IMMUNOHISTOCHEMISTRY (IHC) IN CRC
+MMR proteins (MLH1, MSH2, MSH6, PMS2):
+- Loss of expression → dMMR (deficient mismatch repair) → MSI-H
+- Used for Lynch syndrome screening in all CRC patients (universal testing)
+- Important for immunotherapy eligibility
+
+CDX2: Intestinal transcription factor, expressed in CRC. Loss associated with poor prognosis.
+CK20/CK7: Typical CRC profile CK20+/CK7-, helps in metastasis origin determination
+CEA: Carcinoembryonic antigen, not specific but elevated in most CRC
+p53: Aberrant expression (null or diffuse strong) indicates TP53 mutation
+
+MOLECULAR TESTING WORKFLOW
+1. KRAS exon 2, 3, 4 (codons 12, 13, 59, 61, 117, 146)
+2. NRAS exon 2, 3, 4
+3. BRAF V600E (IHC or molecular)
+4. MSI/MMR status (IHC + PCR or NGS)
+5. HER2 (IHC + FISH if 2+)
+6. Consider POLE/POLD1 in hypermutated tumors
+
+SPECIMEN HANDLING PROTOCOLS
+Fresh tissue: fix in 10% neutral buffered formalin within 30 minutes
+Fixation time: minimum 6 hours, optimum 24-48 hours (for IHC)
+Overfixation (>72h): may reduce antigen retrieval efficiency
+Cold ischemia time: critical for RNA-based and some IHC tests
+
+TUMOR BUDDING (ITBCC 2016)
+Definition: single tumor cells or clusters of up to 4 cells at the invasive front
+Scoring: per 0.785mm² field at invasive front (20x objective)
+Bd1: 0-4 buds (low)
+Bd2: 5-9 buds (intermediate)
+Bd3: ≥10 buds (high) — adverse prognosis
+
+PATHOLOGICAL COMPLETE RESPONSE (pCR) IN RECTAL CANCER
+After neoadjuvant chemoradiation: no viable tumor cells in specimen or nodes = ypT0N0
+Near-complete response: <10% viable tumor cells remaining
+Tumor regression grading (AJCC/CAP): TRG 0-3 scale
+
+FROZEN SECTION INDICATIONS IN CRC
+- Intraoperative margin assessment
+- Assessment of liver metastasis (needle biopsy confirmation)
+- Parathyroid identification
+- Sentinel lymph node evaluation (limited utility in CRC)

@@ -1,18 +1,33 @@
-# Datadata Website Docs
+Datadata
+Интеллектуальная аналитическая платформа с интегрированной системой RAG (Retrieval-Augmented Generation) для эффективного поиска и работы с данными.
 
-Эта папка содержит документацию по проекту.
+🚀 Быстрый запуск
+Для запуска локальной среды разработки используйте готовые скрипты:
 
-## Что читать в первую очередь
+1. Запуск Backend
+Bash
+start_backend.bat
+API URL: http://localhost:8000
 
-1. `PROJECT_STATUS.md` — что уже готово и как это использовать.
-2. `API_QUICK_REFERENCE.md` — основные API endpoint-ы.
-3. `BEST_QUESTIONS_RAG.md` — лучшие вопросы для AI/RAG (для демо и реальной работы).
+2. Запуск Frontend
+Bash
+start_frontend.bat
+Web URL: http://localhost:5173
 
-## Быстрый запуск
+📂 Навигация по документации
+Для детального ознакомления с архитектурой и возможностями проекта изучите следующие разделы:
 
-- Backend: `start_backend.bat`
-- Frontend: `start_frontend.bat`
+Project Status — актуальное состояние разработки, готовые модули и инструкции по использованию.
 
-После запуска:
-- Frontend: http://localhost:5173
-- Backend API: http://localhost:8000
+API Quick Reference — документация по основным эндпоинтам бэкенда.
+
+Best Questions for RAG — база протестированных вопросов для демонстрации и оценки качества ответов AI.
+
+🛠 Технологический стек
+Проект построен на современном стеке для Data Science и Web-разработки:
+
+Frontend: React / Vite (порт 5173).
+
+Backend: Python API (порт 8000).
+
+AI Core: RAG-конвейер для семантического поиска и генерации ответов.
